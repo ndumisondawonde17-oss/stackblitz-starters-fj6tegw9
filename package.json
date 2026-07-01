@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "servor --reload"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "qrcode-generator": "^2.0.4",
+    "servor": "^4.0.2"
+  }
+}

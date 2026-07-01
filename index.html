@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Survey Manager - Owner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <div id="notification-bar" class="notification-bar"></div>
+
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="password-screen">
+    <div class="password-container">
+      <div class="lock-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1>Owner Access</h1>
+
+      <!-- Sign In Form -->
+      <div id="signin-form-container">
+        <p>Sign in to access the owner panel</p>
+        <form id="signin-form">
+          <div class="form-group">
+            <input type="email" id="signin-email" placeholder="Email address" required />
+          </div>
+          <div class="form-group">
+            <input type="password" id="signin-password" placeholder="Password" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+        <p class="auth-switch">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+      </div>
+
+      <!-- Sign Up Form -->
+      <div id="signup-form-container" style="display: none;">
+        <p>Create an account to manage your surveys</p>
+        <form id="signup-form">
+          <div class="form-group">
+            <input type="email" id="signup-email" placeholder="Email address" required />
+          </div>
+          <div class="form-group">
+            <input type="password" id="signup-password" placeholder="Password (min 6 characters)" required minlength="6" />
+          </div>
+          <div class="form-group">
+            <input type="password" id="signup-confirm" placeholder="Confirm password" required minlength="6" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="#" id="show-signin">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App (hidden until authenticated) -->
+  <div id="main-app" style="display: none;">
+    <nav>
+      <div class="nav-brand">Survey Manager</div>
+      <div class="nav-links">
+        <a href="index.html" class="active" data-page="owner">Owner</a>
+        <a href="guest.html" data-page="guest">Guest</a>
+      </div>
+      <button id="logout-btn" class="btn btn-secondary btn-small">Sign Out</button>
+    </nav>
+
+    <main id="owner-page">
+      <header class="page-header">
+        <h1>Survey Manager</h1>
+        <p class="subtitle">Create and manage surveys and checklists</p>
+      </header>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="create">Create Survey</button>
+        <button class="tab-btn" data-tab="surveys">My Surveys</button>
+        <button class="tab-btn" data-tab="responses">Responses</button>
+        <button class="tab-btn" data-tab="departments">Departments</button>
+        <button class="tab-btn" data-tab="workstations">Workstations</button>
+        <button class="tab-btn" data-tab="qrcode">QR Code</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Create Tab -->
+        <section id="tab-create" class="tab-panel active">
+          <form id="create-form">
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" id="title" required placeholder="Enter survey title" />
+            </div>
+            <div class="form-group">
+              <label for="description">Description (optional)</label>
+              <textarea id="description" placeholder="Enter description"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="type">Type</label>
+              <select id="type">
+                <option value="survey">Survey</option>
+                <option value="checklist">Checklist</option>
+              </select>
+            </div>
+
+            <!-- Assignment Section -->
+            <div class="assignment-section">
+              <h3>Assign To (Optional)</h3>
+              <p class="assignment-hint">Select departments or workstations that should have access to this survey.</p>
+
+              <div class="assignment-grid">
+                <div class="assignment-col">
+                  <h4>Departments</h4>
+                  <div id="department-checkboxes" class="checkbox-grid">
+                    <p class="empty-hint">No departments yet. Add them in the Departments tab.</p>
+                  </div>
+                </div>
+                <div class="assignment-col">
+                  <h4>Workstations</h4>
+                  <div id="workstation-checkboxes" class="checkbox-grid">
+                    <p class="empty-hint">No workstations yet. Add them in the Workstations tab.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="questions-container">
+              <div class="questions-header">
+                <h3>Questions</h3>
+                <div class="import-section">
+                  <input type="file" id="questions-file" accept=".txt,.csv" style="display: none;" />
+                  <button type="button" id="import-questions-btn" class="btn btn-secondary btn-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Import from File
+                  </button>
+                </div>
+              </div>
+              <div id="questions-list"></div>
+              <button type="button" id="add-question-btn" class="btn btn-secondary">+ Add Question</button>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Survey</button>
+          </form>
+        </section>
+
+        <!-- Surveys Tab -->
+        <section id="tab-surveys" class="tab-panel">
+          <h2>Your Surveys & Checklists</h2>
+          <div id="surveys-list"></div>
+        </section>
+
+        <!-- Responses Tab -->
+        <section id="tab-responses" class="tab-panel">
+          <div class="responses-header">
+            <h2>All Responses</h2>
+            <div class="pdf-download-section">
+              <input type="date" id="pdf-date-filter" placeholder="Filter by date" />
+              <button id="download-pdf-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+              </button>
+            </div>
+          </div>
+          <div class="responses-filters">
+            <div class="search-box">
+              <input type="text" id="search-responses" placeholder="Search by name, surname, or workstation..." />
+            </div>
+            <div class="filter-row">
+              <div class="filter-group">
+                <label for="filter-month">Month</label>
+                <input type="month" id="filter-month" />
+              </div>
+              <div class="filter-group">
+                <label for="filter-date">Specific Date</label>
+                <input type="date" id="filter-date" />
+              </div>
+              <button id="clear-filters" class="btn btn-secondary btn-small">Clear Filters</button>
+            </div>
+          </div>
+          <div id="responses-list"></div>
+        </section>
+
+        <!-- Departments Tab -->
+        <section id="tab-departments" class="tab-panel">
+          <h2>Departments</h2>
+          <div class="management-section">
+            <form id="add-department-form" class="inline-form">
+              <div class="form-group">
+                <input type="text" id="dept-name" placeholder="Department name" required />
+              </div>
+              <div class="form-group">
+                <input type="text" id="dept-description" placeholder="Description (optional)" />
+              </div>
+              <button type="submit" class="btn btn-primary">Add Department</button>
+            </form>
+          </div>
+          <div id="departments-list" class="items-list"></div>
+        </section>
+
+        <!-- Workstations Tab -->
+        <section id="tab-workstations" class="tab-panel">
+          <h2>Workstations</h2>
+          <div class="management-section">
+            <form id="add-workstation-form" class="inline-form">
+              <div class="form-group">
+                <input type="text" id="ws-name" placeholder="Workstation name" required />
+              </div>
+              <div class="form-group">
+                <select id="ws-department">
+                  <option value="">Select Department (optional)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Add Workstation</button>
+            </form>
+          </div>
+          <div id="workstations-list" class="items-list"></div>
+        </section>
+
+        <!-- QR Code Tab -->
+        <section id="tab-qrcode" class="tab-panel">
+          <h2>Guest Page QR Code</h2>
+          <p>Scan this QR code to access the guest page:</p>
+          <div id="qr-container"></div>
+          <p class="qr-url" id="guest-url"></p>
+        </section>
+
+        <!-- Settings Tab -->
+        <section id="tab-settings" class="tab-panel">
+          <h2>Settings</h2>
+          <div class="settings-section">
+            <h3>Account</h3>
+            <p>You are signed in with your Supabase account. Use the Sign Out button in the header to log out.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Edit Survey</h2>
+        <form id="edit-form">
+          <input type="hidden" id="edit-id" />
+          <div class="form-group">
+            <label for="edit-title">Title</label>
+            <input type="text" id="edit-title" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-description">Description</label>
+            <textarea id="edit-description"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="edit-type">Type</label>
+            <select id="edit-type">
+              <option value="survey">Survey</option>
+              <option value="checklist">Checklist</option>
+            </select>
+          </div>
+
+          <!-- Assignment Section for Edit -->
+          <div class="assignment-section">
+            <h3>Assign To (Optional)</h3>
+            <div class="assignment-grid">
+              <div class="assignment-col">
+                <h4>Departments</h4>
+                <div id="edit-department-checkboxes" class="checkbox-grid"></div>
+              </div>
+              <div class="assignment-col">
+                <h4>Workstations</h4>
+                <div id="edit-workstation-checkboxes" class="checkbox-grid"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="edit-questions-container">
+            <h3>Questions</h3>
+            <div id="edit-questions-list"></div>
+            <button type="button" id="edit-add-question-btn" class="btn btn-secondary">+ Add Question</button>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Responses Modal -->
+    <div id="responses-modal" class="modal">
+      <div class="modal-content large">
+        <span class="close-btn">&times;</span>
+        <h2>Response Details</h2>
+        <div id="response-details"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

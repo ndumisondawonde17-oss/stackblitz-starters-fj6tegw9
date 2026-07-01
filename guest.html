@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Guest - Surveys & Checklists</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="guest.js"></script>
+</head>
+<body>
+  <nav class="guest-nav">
+    <div class="nav-brand">Survey Guest</div>
+    <div id="workstation-display" style="display: none;">
+      <span id="current-workstation"></span>
+      <button id="change-workstation" class="btn btn-secondary btn-small">Change</button>
+    </div>
+  </nav>
+  <main id="guest-page">
+    <!-- Workstation Selection Screen -->
+    <section id="workstation-select-container" class="workstation-select-container">
+      <div class="workstation-select-box">
+        <div class="workstation-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        <h2>Select Your Workstation</h2>
+        <p>Choose your workstation to see available surveys and checklists.</p>
+
+        <form id="workstation-select-form">
+          <div class="form-group">
+            <select id="workstation-select" required>
+              <option value="">-- Select Workstation --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="manual-workstation">Or enter manually:</label>
+            <input type="text" id="manual-workstation" placeholder="Enter workstation name" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Continue</button>
+        </form>
+      </div>
+    </section>
+
+    <div class="guest-container" style="display: none;">
+      <header class="page-header">
+        <h1>Surveys & Checklists</h1>
+        <p class="subtitle">Select a survey or checklist to complete</p>
+      </header>
+
+      <section id="survey-list-container" class="available-surveys">
+        <h2>Available Surveys</h2>
+        <div id="available-surveys-list"></div>
+      </section>
+
+      <section id="survey-form-container" class="survey-form-container" style="display: none;">
+        <a href="#" class="back-btn" id="back-to-list">&larr; Back to surveys</a>
+        <div id="survey-form-content"></div>
+      </section>
+
+      <section id="success-container" class="success-message" style="display: none;">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h2>Thank You!</h2>
+        <p>Your response has been submitted successfully.</p>
+        <button class="btn btn-primary" id="submit-another">Submit Another Response</button>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
